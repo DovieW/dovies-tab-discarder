@@ -45,7 +45,22 @@ for (const event of [chrome.tabs.onCreated, chrome.tabs.onRemoved, chrome.tabs.o
 // Run batches here so closing the popup does not abandon an operation.
 // A second popup or repeated click cannot start an overlapping batch.
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
-  if (sender.id !== chrome.runtime.id || message?.type !== 'discard') return;
+  if (sender.id !== chrome.runtime.id || !['discard', 'switch'].includes(message?.type)) return;
+  if (message.type === 'switch') {
+    if (!Number.isInteger(message.tabId) || discarding) {
+      respond({ error: 'Tab unavailable or a discard operation is running.' });
+      return;
+    }
+    (async () => {
+      const activated = await chrome.tabs.update(message.tabId, { active: true });
+      const actual = await chrome.tabs.get(activated.id);
+      // API activation can leave the page unloaded. Restore only when Chrome
+      // still reports it discarded, without restarting a load in progress.
+      if (actual.discarded === true && actual.status !== 'loading') await chrome.tabs.reload(actual.id);
+      await chrome.windows.update(actual.windowId, { focused: true });
+    })().then(() => respond({ ok: true }), () => respond({ error: 'Could not switch to that tab.' }));
+    return true;
+  }
   if (hostname(`https://${message.domain}/`) !== message.domain ||
     !Number.isInteger(message.currentId) ||
     (message.onlyId !== null && !Number.isInteger(message.onlyId))) {

@@ -56,6 +56,7 @@ test('protection explains each exposed safety condition', () => {
   for (const [extra, expected] of [
     [{ active: true }, 'Active in its window'], [{ pinned: true }, 'Pinned'],
     [{ audible: true }, 'Playing audio'], [{ autoDiscardable: false }, 'Protected from discarding'],
+    [{ mutedInfo: { muted: true, reason: 'capture' } }, 'Being captured'],
     [{ status: 'loading' }, 'Loading or navigating'], [{ pendingUrl: 'https://other.test/' }, 'Loading or navigating'],
     [{ discarded: true }, 'Already discarded']
   ]) assert.equal(protection(tab(2, extra), 1), expected);
@@ -81,9 +82,10 @@ test('ten tabs discard nine without closing or changing URLs', async () => {
 test('all active windows, pinned, audible, opted-out, loading and discarded tabs are skipped', async () => {
   const m = mock([tab(1, { active: true }), tab(2, { active: true, windowId: 2 }), tab(3, { pinned: true }),
     tab(4, { audible: true }), tab(5, { autoDiscardable: false }), tab(6, { status: 'loading' }),
-    tab(7, { discarded: true }), tab(8, { windowId: 3 }), tab(9, { url: 'https://other.test/' })]);
+    tab(7, { discarded: true }), tab(8, { windowId: 3 }), tab(9, { url: 'https://other.test/' }),
+    tab(10, { mutedInfo: { muted: true, reason: 'capture' } })]);
   const result = await discardTabs(m.api, 'chatgpt.com', 1);
-  assert.equal(result.discarded, 1); assert.equal(result.skipped, 6); assert.deepEqual(m.calls, [8]);
+  assert.equal(result.discarded, 1); assert.equal(result.skipped, 7); assert.deepEqual(m.calls, [8]);
 });
 test('domain mismatch safely discards only eligible background tabs', async () => {
   const m = mock([tab(1, { url: 'https://other.test/', active: true }), tab(2), tab(3, { active: true, windowId: 2 })]);

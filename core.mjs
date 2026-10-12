@@ -22,6 +22,7 @@ export function protection(tab, currentId) {
   if (tab.id === currentId) return 'Current tab';
   if (tab.active) return 'Active in its window';
   if (tab.pinned) return 'Pinned';
+  if (tab.mutedInfo?.reason === 'capture') return 'Being captured';
   if (tab.audible) return 'Playing audio';
   if (tab.autoDiscardable === false) return 'Protected from discarding';
   if (tab.status === 'loading' || tab.pendingUrl) return 'Loading or navigating';

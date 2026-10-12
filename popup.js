@@ -43,12 +43,13 @@ function createRow(tab) {
   row.querySelector('.switch-tab').addEventListener('click', async () => {
     if (busy) return;
     try {
-      const latest = await chrome.tabs.get(tab.id);
-      await chrome.tabs.update(tab.id, { active: true });
-      await chrome.windows.update(latest.windowId, { focused: true });
+      // Activating a tab can close this popup before the remaining API calls
+      // finish. The worker owns restoration and window focus as one action.
+      const response = await chrome.runtime.sendMessage({ type: 'switch', tabId: tab.id });
+      if (response?.error) throw Error(response.error);
       window.close();
     } catch {
-      feedback('That tab is no longer available.');
+      feedback('Could not switch to that tab. Try again.');
       await refresh();
     }
   });
@@ -222,7 +223,7 @@ async function start() {
       chrome.tabs.onMoved, chrome.tabs.onAttached, chrome.tabs.onDetached, chrome.tabs.onReplaced,
       chrome.windows.onCreated, chrome.windows.onRemoved]) event.addListener(scheduleRefresh);
     chrome.tabs.onUpdated.addListener((_id, change) => {
-      if (['url', 'status', 'discarded', 'title', 'favIconUrl', 'pinned', 'audible', 'autoDiscardable'].some(key => key in change)) scheduleRefresh();
+      if (['url', 'status', 'discarded', 'title', 'favIconUrl', 'pinned', 'audible', 'mutedInfo', 'autoDiscardable'].some(key => key in change)) scheduleRefresh();
     });
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === 'local' && changes.monitoredDomain) {

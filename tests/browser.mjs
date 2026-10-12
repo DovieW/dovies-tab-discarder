@@ -227,7 +227,7 @@ try {
     assert.equal(await evaluate(popup, 'document.getElementById("discard-others").disabled'), true);
     assert.equal(await evaluate(popup, 'document.getElementById("total").textContent'), '0');
   });
-  await check('individual discard and switching activate the requested tab', async () => {
+  await check('individual discard and switching restore the requested tab', async () => {
     await evaluate(popup, `document.getElementById('domain-search').value='';document.getElementById('domain-search').dispatchEvent(new Event('input'));
       document.getElementById('domain-options').value='127.0.0.1';document.getElementById('domain-options').dispatchEvent(new Event('change'))`);
     const added = await run(`chrome.tabs.create({url:${JSON.stringify(base + '/individual')},active:false})`);
@@ -239,9 +239,7 @@ try {
     assert.equal(discarded.discarded, true);
     await until(async () => await evaluate(popup, `document.querySelector('[data-id="${discarded.id}"] .switch-tab')?.disabled===false`));
     await evaluate(popup, `document.querySelector('[data-id="${discarded.id}"] .switch-tab').click()`);
-    await until(async () => (await all()).some(t => t.url.endsWith('/individual') && t.active));
-    // Headless Chrome can leave an activated tab unloaded; visible-window
-    // reload behavior is explicitly covered by the manual checklist.
+    await until(async () => (await all()).some(t => t.url.endsWith('/individual') && t.active && !t.discarded));
   });
   await check('unavailable-domain fallback and no-website empty state', async () => {
     const { ids } = await reset(1); await ready();
