@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dovie's Tab Discarder</title>
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body>
+  <header>
+    <img src="icons/icon.svg" width="30" height="30" alt="">
+    <div><h1>Dovie's Tab Discarder</h1><p>Keep tabs. Lose the load.</p></div>
+  </header>
+  <main>
+    <div class="section-label">HOSTNAME <span>All normal windows</span></div>
+    <details id="domains">
+      <summary><span id="selected-domain">Loading tabs…</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+      <div class="domain-menu">
+        <label class="sr-only" for="domain-search">Search open hostnames</label>
+        <input id="domain-search" type="search" placeholder="Find a hostname…" autocomplete="off" spellcheck="false">
+        <label class="sr-only" for="domain-options">Choose a hostname</label>
+        <select id="domain-options" size="5"></select>
+        <p id="no-domains" hidden>No matching hostnames.</p>
+      </div>
+    </details>
+    <p id="current-context" class="context">Reading the current tab…</p>
+    <div class="stats" aria-label="Tab counts">
+      <div><strong id="total">0</strong><span>Total tabs</span></div>
+      <div><strong id="loaded">0</strong><span><i class="dot" aria-hidden="true"></i>Loaded</span></div>
+      <div><strong id="discarded">0</strong><span>Discarded</span></div>
+    </div>
+    <button id="discard-others" class="primary" disabled>Discard Others <span id="eligible-count"></span></button>
+    <p id="protection-note" class="hint">Current, active, pinned and audible tabs stay loaded.</p>
+    <div id="feedback" role="status" aria-live="polite"></div>
+    <div class="section-label list-label">TABS <span id="window-count"></span></div>
+    <ul id="tab-list" aria-label="Tabs on the selected hostname"></ul>
+    <div id="empty" hidden><strong>No tabs here</strong><p>Choose another hostname from your open tabs.</p></div>
+  </main>
+  <footer><label><input id="monitor" type="checkbox" disabled> Show loaded count in toolbar</label><span id="monitor-context"></span></footer>
+  <template id="tab-template">
+    <li class="tab-row">
+      <button class="switch-tab"><img class="favicon" src="icons/icon.svg" width="16" height="16" alt=""><span class="tab-copy"><span class="tab-title"></span><span class="tab-meta"></span></span><span class="current-marker" hidden>Current</span></button>
+      <button class="discard-tab" aria-label="Discard tab"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 11v5h12v-5M10 3v9M6.5 8.5 10 12l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </li>
+  </template>
+</body>
+</html>
