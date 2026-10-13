@@ -17,6 +17,8 @@ Requires desktop Chrome 120 or newer.
 
 This is an unpacked release, not a Chrome Web Store installation. To update, replace the extracted files and click **Reload** on the extension's card.
 
+If Chrome says **Could not unzip extension for install**, extract the ZIP first and use **Load unpacked** with the folder containing `manifest.json`.
+
 ## Use
 
 The popup initially selects the current tab's hostname. On browser-internal pages, it falls back to your last available selection or another open hostname. Search the hostname selector to switch. `chatgpt.com` and `www.chatgpt.com` are intentionally separate; there is no unreliable public-suffix guessing.
@@ -79,3 +81,11 @@ Manual acceptance checklist (use disposable pages or saved conversations):
 `manifest.json`, `popup.html`, `popup.css`, `popup.js`, `core.mjs`, `worker.js` and `icons/` are the entire extension. `tests/` is optional validation. Original SVG and 16/32/48/128-pixel PNGs are included. PNGs were rasterized locally with ImageMagick; loading or developing the extension requires no image conversion tooling.
 
 MIT licensed.
+
+## Release packaging
+
+Keep `manifest.json` at the ZIP root; an enclosing folder prevents Chrome from installing the ZIP directly. GitHub's automatic source archives include an enclosing folder, so use the attached release ZIP for installation.
+
+```sh
+git archive --format=zip --output=/tmp/dovies-tab-discarder-0.1.0.zip HEAD manifest.json popup.html popup.css popup.js core.mjs worker.js icons README.md LICENSE
+```
